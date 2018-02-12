@@ -123,6 +123,13 @@ namespace NuGet.Configuration
         bool DeleteSection(string section);
 
         /// <summary>
+        /// Deletes the specified <paramref name="section" /> across multiple <see cref="ISettings" /> instances in the hierarchy.
+        /// </summary>
+        /// <param name="section">The name of the section.</param>
+        /// <returns>bool indicating success.</returns>
+        bool DeleteSections(string section);
+
+        /// <summary>
         /// Event raised when the setting have been changed.
         /// </summary>
         event EventHandler SettingsChanged;

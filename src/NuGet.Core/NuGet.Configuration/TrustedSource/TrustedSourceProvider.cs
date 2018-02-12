@@ -74,20 +74,16 @@ namespace NuGet.Configuration
 
         public void SaveTrustedSources(IEnumerable<TrustedSource> sources)
         {
-            var existingSources = LoadTrustedSources();
-            foreach (var source in sources)
-            {
-                SaveTrustedSource(source, existingSources);
-            }
+            WriteTrustedSources(sources);
         }
 
         public void SaveTrustedSource(TrustedSource source)
         {
-            var existingSources = LoadTrustedSources();
+            var existingSources = LoadTrustedSources().ToList();
             SaveTrustedSource(source, existingSources);
         }
 
-        private void SaveTrustedSource(TrustedSource source, IEnumerable<TrustedSource> existingSources)
+        private void SaveTrustedSource(TrustedSource source, IList<TrustedSource> existingSources)
         {
             var matchingSource = existingSources
                 .Where(s => string.Equals(s.SourceName, source.SourceName, StringComparison.OrdinalIgnoreCase))
@@ -107,20 +103,61 @@ namespace NuGet.Configuration
                 settingValues.Add(settingValue);
             }
 
+            if (!string.IsNullOrEmpty(source.ServiceIndex))
+            {
+                // TODO pass priority
+                var settingValue = new SettingValue(ConfigurationConstants.ServiceIndex, source.ServiceIndex, isMachineWide: false);
+                settingValues.Add(settingValue);
+            }
+
             if (matchingSource != null)
             {
-                _settings.UpdateSubsections(ConfigurationConstants.TrustedSources, source.SourceName, settingValues);
+                existingSources.Remove(matchingSource);
             }
-            else
-            {
-                _settings.SetNestedSettingValues(ConfigurationConstants.TrustedSources, source.SourceName, settingValues);
-            }
+
+            existingSources.Add(source);
+            _settings.DeleteSections(ConfigurationConstants.TrustedSources);
+            SaveTrustedSources(existingSources);
         }
 
         public void DeleteTrustedSource(string sourceName)
         {
-            // Passing an empty list of values will clear the existing sections
-            _settings.UpdateSubsections(ConfigurationConstants.TrustedSources, sourceName, Enumerable.Empty<SettingValue>().AsList());
+            var existingSources = LoadTrustedSources().AsList();
+            var matchingSource = existingSources
+                .Where(s => string.Equals(s.SourceName, sourceName, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault();
+
+            if (matchingSource != null)
+            {
+                existingSources.Remove(matchingSource);
+                WriteTrustedSources(existingSources);
+            }
+        }
+
+        private void WriteTrustedSources(IEnumerable<TrustedSource> sources)
+        {
+            _settings.DeleteSections(ConfigurationConstants.TrustedSources);
+            foreach (var source in sources)
+            {
+                var settingValues = new List<SettingValue>();
+
+                foreach (var cert in source.Certificates)
+                {
+                    var settingValue = new SettingValue(cert.Fingerprint, cert.SubjectName, isMachineWide: false, priority: cert.Priority);
+
+                    settingValue.AdditionalData.Add(ConfigurationConstants.FingerprintAlgorithm, cert.FingerprintAlgorithm.ToString());
+                    settingValues.Add(settingValue);
+                }
+
+                if (!string.IsNullOrEmpty(source.ServiceIndex))
+                {
+                    // TODO pass priority
+                    var settingValue = new SettingValue(ConfigurationConstants.ServiceIndex, source.ServiceIndex, isMachineWide: false);
+                    settingValues.Add(settingValue);
+                }
+
+                _settings.SetNestedSettingValues(ConfigurationConstants.TrustedSources, source.SourceName, settingValues);
+            }
         }
     }
 }

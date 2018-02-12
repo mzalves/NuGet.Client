@@ -226,12 +226,12 @@ namespace NuGet.Configuration
         public static ISettings LoadSettingsGivenConfigPaths(IList<string> configFilePaths)
         {
             var settings = new List<Settings>();
-            if(configFilePaths == null || configFilePaths.Count == 0)
+            if (configFilePaths == null || configFilePaths.Count == 0)
             {
                 return NullSettings.Instance;
             }
 
-            foreach(var configFile in configFilePaths)
+            foreach (var configFile in configFilePaths)
             {
                 settings.Add(LoadSettings(configFile));
             }
@@ -914,6 +914,20 @@ namespace NuGet.Configuration
             Save();
 
             return result;
+        }
+
+        public bool DeleteSections(string section)
+        {
+            var result = DeleteSectionFromRoot(ConfigXDocument.Root, section);
+
+            if (_next != null)
+            {
+                result &= _next.DeleteSections(section);
+            }
+
+            Save();
+
+            return true;
         }
 
         private bool DeleteSectionFromRoot(XElement root, string section)

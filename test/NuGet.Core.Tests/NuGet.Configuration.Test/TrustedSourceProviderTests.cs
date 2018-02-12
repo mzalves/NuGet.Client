@@ -1297,24 +1297,24 @@ namespace NuGet.Configuration.Test
                 // Assert
                 var result1 = $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <configuration>
-    <packageSources>
-        <add key=""nuget.org"" value=""https://nuget.org"" />
-        <add key=""test.org"" value=""Packages"" />
-    </packageSources>
-    <trustedSources>
-        <nuget.org>
-            <add key=""HASH"" value=""SUBJECT_NAME"" fingerprintAlgorithm=""SHA256"" />
-        </nuget.org>
-    </trustedSources>
+  <packageSources>
+    <add key=""nuget.org"" value=""https://nuget.org"" />
+    <add key=""test.org"" value=""Packages"" />
+  </packageSources>
+  <trustedSources>
+    <nuget.org>
+      <add key=""HASH"" value=""SUBJECT_NAME"" fingerprintAlgorithm=""SHA256"" />
+    </nuget.org>
+  </trustedSources>
 </configuration>";
 
                 var result2 = $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <configuration>
-    <trustedSources>
-        <nuget.org>
-            <add key=""HASH2"" value=""SUBJECT_NAME2"" fingerprintAlgorithm=""SHA512"" />
-        </nuget.org>
-    </trustedSources>
+  <trustedSources>
+    <nuget.org>
+      <add key=""HASH2"" value=""SUBJECT_NAME2"" fingerprintAlgorithm=""SHA512"" />
+    </nuget.org>
+  </trustedSources>
 </configuration>";
 
                 Assert.Equal(result1.Replace("\r\n", "\n"),

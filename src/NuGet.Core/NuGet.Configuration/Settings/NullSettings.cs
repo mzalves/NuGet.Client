@@ -97,5 +97,10 @@ namespace NuGet.Configuration
         {
             throw new InvalidOperationException(String.Format(CultureInfo.CurrentCulture, Resources.InvalidNullSettingsOperation, nameof(DeleteValue)));
         }
+
+        public bool DeleteSections(string section)
+        {
+            throw new InvalidOperationException(String.Format(CultureInfo.CurrentCulture, Resources.InvalidNullSettingsOperation, nameof(DeleteSection)));
+        }
     }
 }
