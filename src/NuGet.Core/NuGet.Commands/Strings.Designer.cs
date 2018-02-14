@@ -1548,6 +1548,15 @@ namespace NuGet.Commands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File &apos;{0}&apos; was not added as NuGet package files and files and folders starting with a dot are excluded by default. To prevent this, use -NoDefaultExcludes from the command line..
+        /// </summary>
+        internal static string Warning_FileExcludedByDefault {
+            get {
+                return ResourceManager.GetString("Warning_FileExcludedByDefault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} depends on {1} but {2} was not found. An approximate best match of {3} was resolved..
         /// </summary>
         internal static string Warning_MinVersionDoesNotExist {

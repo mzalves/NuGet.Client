@@ -691,4 +691,7 @@ For more information, visit http://docs.nuget.org/docs/reference/command-line-re
   <data name="Error_InvalidDependencyVersionConstraints" xml:space="preserve">
     <value>Package version constraints for '{0}' return a version range that is empty.</value>
   </data>
+  <data name="Warning_FileExcludedByDefault" xml:space="preserve">
+    <value>File '{0}' was not added as NuGet package files and files and folders starting with a dot are excluded by default. To prevent this, use -NoDefaultExcludes from the command line.</value>
+  </data>
 </root>
