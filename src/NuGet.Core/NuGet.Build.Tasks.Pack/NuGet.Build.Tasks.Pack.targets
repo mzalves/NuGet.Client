@@ -36,7 +36,7 @@ Copyright (c) .NET Foundation. All rights reserved.
     <BuildOutputTargetFolder Condition="'$(BuildOutputTargetFolder)' == '' AND '$(IsTool)' == 'true'">tools</BuildOutputTargetFolder>
     <BuildOutputTargetFolder Condition="'$(BuildOutputTargetFolder)' == ''">lib</BuildOutputTargetFolder>
     <ContentTargetFolders Condition="'$(ContentTargetFolders)' == ''">content;contentFiles</ContentTargetFolders>
-    <PackDependsOn>$(BeforePack); _IntermediatePack; GenerateNuspecNoNuspecFile; GenerateNuspecWithNuspecFile; $(PackDependsOn)</PackDependsOn>
+    <PackDependsOn>$(BeforePack); _IntermediatePack; GenerateNuspec; $(PackDependsOn)</PackDependsOn>
     <IsInnerBuild Condition="'$(TargetFramework)' != '' AND '$(TargetFrameworks)' != ''">true</IsInnerBuild>
     <NoBuild Condition="'$(GeneratePackageOnBuild)' == 'true'">true</NoBuild>
     <AddPriFileDependsOn Condition="'$(MicrosoftPortableCurrentVersionPropsHasBeenImported)' == 'true'">DeterminePortableBuildCapabilities</AddPriFileDependsOn>
@@ -53,10 +53,10 @@ Copyright (c) .NET Foundation. All rights reserved.
     <GenerateNuspecDependsOn>Build;$(GenerateNuspecDependsOn)</GenerateNuspecDependsOn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(NuspecFile)' == '' ">
-    <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn); _CalculateInputsOutputsForPack</GenerateNuspecDependsOn>
+    <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn); _GenerateNuspecUsingProjectFile</GenerateNuspecDependsOn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(NuspecFile)' != '' ">
-    <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn)</GenerateNuspecDependsOn>
+    <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn); _GenerateNuspecUsingNuspecFile</GenerateNuspecDependsOn>
   </PropertyGroup>
   <ItemGroup>
     <ProjectCapability Include="Pack"/>
@@ -198,7 +198,9 @@ Copyright (c) .NET Foundation. All rights reserved.
     </PropertyGroup>
   </Target>
 
-  <Target Name="GenerateNuspecInternal" DependsOnTargets="$(GenerateNuspecDependsOn);_CalculateInputsOutputsForPack;_GetProjectReferenceVersions">
+  <Target Name="GenerateNuspec" DependsOnTargets="$(GenerateNuspecDependsOn)" />
+
+  <Target Name="_GenerateNuspecCommon" DependsOnTargets="_CalculateInputsOutputsForPack;_GetProjectReferenceVersions">
     <!-- Call Pack -->
     <PackTask PackItem="$(PackProjectInputFile)"
               PackageFiles="@(_PackageFiles)"
@@ -246,10 +248,10 @@ Copyright (c) .NET Foundation. All rights reserved.
               AllowedOutputExtensionsInSymbolsPackageBuildOutputFolder="$(AllowedOutputExtensionsInSymbolsPackageBuildOutputFolder)"/>
   </Target>
 
-  <Target Name="GenerateNuspecNoNuspecFile" DependsOnTargets="GenerateNuspecInternal" Condition="$(IsPackable) == 'true' AND '$(NuspecFile)' == ''"
+  <Target Name="_GenerateNuspecUsingProjectFile" DependsOnTargets="_GenerateNuspecCommon" Condition="'$(IsPackable)' == 'true'"
           Inputs="@(NuGetPackInput)" Outputs="@(NuGetPackOutput)" />
 
-  <Target Name="GenerateNuspecWithNuspecFile" DependsOnTargets="GenerateNuspecInternal" Condition="$(IsPackable) == 'true' AND '$(NuspecFile)' != ''" />
+  <Target Name="_GenerateNuspecUsingNuspecFile" DependsOnTargets="_GenerateNuspecCommon" Condition="'$(IsPackable)' == 'true'" />
 
   <!--
     ============================================================
