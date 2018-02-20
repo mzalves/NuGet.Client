@@ -85,7 +85,7 @@ namespace NuGet.VisualStudio
                 });
             }
 
-            PumpingJTF.Run(asyncTask);
+            PumpingJTF.RunAsync(asyncTask);
         }
 
         public void InstallLatestPackage(
@@ -95,7 +95,7 @@ namespace NuGet.VisualStudio
             bool includePrerelease,
             bool ignoreDependencies)
         {
-            RunJTFWithCorrectContext(project, () => InstallPackageAsync(
+            RunJTFWithCorrectContext(project, async () => await InstallPackageAsync(
                 source,
                 project,
                 packageId,
@@ -113,7 +113,7 @@ namespace NuGet.VisualStudio
                 semVer = new NuGetVersion(version);
             }
 
-            RunJTFWithCorrectContext(project, () => InstallPackageAsync(
+            RunJTFWithCorrectContext(project, async () => await InstallPackageAsync(
                 source,
                 project,
                 packageId,
@@ -131,7 +131,7 @@ namespace NuGet.VisualStudio
                 NuGetVersion.TryParse(version, out semVer);
             }
 
-            RunJTFWithCorrectContext(project, () => InstallPackageAsync(
+            RunJTFWithCorrectContext(project, async () => await InstallPackageAsync(
                 source,
                 project,
                 packageId,
@@ -257,7 +257,7 @@ namespace NuGet.VisualStudio
                 throw new ArgumentException(CommonResources.Argument_Cannot_Be_Null_Or_Empty, nameof(packageVersions));
             }
 
-            RunJTFWithCorrectContext(project, () =>
+            RunJTFWithCorrectContext(project, async () =>
                 {
                     var repoProvider = new PreinstalledRepositoryProvider(ErrorHandler, _sourceRepositoryProvider);
                     repoProvider.AddFromExtension(_sourceRepositoryProvider, extensionId);
@@ -269,7 +269,7 @@ namespace NuGet.VisualStudio
 
                     var projectContext = new VSAPIProjectContext(skipAssemblyReferences, disableBindingRedirects);
 
-                    return InstallInternalAsync(
+                    await InstallInternalAsync(
                         project,
                         toInstall,
                         repoProvider,
@@ -424,7 +424,7 @@ namespace NuGet.VisualStudio
 
                     if (highestVersion == null)
                     {
-                        throw new InvalidOperationException(String.Format(CultureInfo.InvariantCulture, VsResources.UnknownPackage, dep.Id));
+                        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, VsResources.UnknownPackage, dep.Id));
                     }
 
                     if (!idToIdentity.ContainsKey(dep.Id))
@@ -541,7 +541,7 @@ namespace NuGet.VisualStudio
 
             using (var sourceCacheContext = new SourceCacheContext())
             {
-                ResolutionContext resolution = new ResolutionContext(
+                var resolution = new ResolutionContext(
                     depBehavior,
                     includePrerelease,
                     includeUnlisted: false,
